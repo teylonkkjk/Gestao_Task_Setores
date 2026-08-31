@@ -22,7 +22,7 @@ class Membro(models.Model):
    class Meta:
        unique_together = ('usuario','setor')
    def __str__(self):
-     return f'{self.usuario.username} - {self.cargo}'
+     return f'{self.usuario.username} - {self.cargo} ({self.setor.nome})'
 
 class Task(models.Model):
     STATUS =(
@@ -43,10 +43,10 @@ class Task(models.Model):
     prioridade = models.CharField(max_length=20, choices=PRIORIDADE, default='relevante')
     data_entrega = models.DateField('Data de Entrega', null=True, blank=True)
     setor = models.ForeignKey(Setor, on_delete=models.CASCADE, related_name='tasks')
-    responsavel = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks_criadas')
+    responsavel = models.ForeignKey(Membro, on_delete=models.CASCADE, related_name='tasks_criadas')
     membro = models.ForeignKey(Membro,on_delete=models.CASCADE, related_name='tasks_atribuidas')
     def __str__(self):
-        return f'{self.titulo} - {self.descricao} - {self.membro.usuario.username}'
+        return f'{self.titulo} | De: {self.responsavel.usuario.username} ➔ Para: {self.membro.usuario.username}'
     
 class Daily_Meeting(models.Model):
     data_agendada = models.DateField('Data Agendada', blank=False, null=False)
