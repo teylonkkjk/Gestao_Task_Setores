@@ -6,8 +6,8 @@ class Setor(models.Model):
     descricao = models.CharField('Descrição', max_length=255, blank=False)
     data_criacao = models.DateTimeField('Data Criação', auto_now=True)
     membros = models.ManyToManyField(User,through='Membro', related_name='Setores')
-def __str__(self):
-    return self.nome
+    def __str__(self):
+     return self.nome
     
 class Membro(models.Model):
    CARGOS = (
@@ -21,8 +21,8 @@ class Membro(models.Model):
    cargo = models.CharField(max_length=20, choices=CARGOS, default='junior')
    class Meta:
        unique_together = ('usuario','setor')
-def __str__(self):
-    return f'{self.usuario.username} - {self.cargo}'
+   def __str__(self):
+     return f'{self.usuario.username} - {self.cargo}'
 
 class Task(models.Model):
     STATUS =(
@@ -46,7 +46,7 @@ class Task(models.Model):
     responsavel = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks_criadas')
     membro = models.ForeignKey(Membro,on_delete=models.CASCADE, related_name='tasks_atribuidas')
     def __str__(self):
-        return f'{self.titulo} - `{self.descricao}'
+        return f'{self.titulo} - {self.descricao} - {self.membro.usuario.username}'
     
 class Daily_Meeting(models.Model):
     data_agendada = models.DateField('Data Agendada', blank=False, null=False)
