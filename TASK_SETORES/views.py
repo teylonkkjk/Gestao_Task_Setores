@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Setor, Task, Membro, Daily_Meeting, Daily_Note
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 def tela_login(request):
     if request.method == 'POST':
@@ -21,9 +22,17 @@ def tela_login(request):
 def dashboard(request):
     meu_setor = request.user.setor
     tarefa_do_setor = Task.objects.filter(setor=meu_setor)
+    
+    hoje = timezone.now().date()
+    proxima_daily = Daily_Meeting.objects.filter(
+        setor=meu_setor,
+        data_agendada__gte=hoje
+    ).order_by('data_agendada', 'horario_da_daily').first()
+
     context = {
         'tarefas': tarefa_do_setor,
-        'setor_atual': meu_setor
+        'setor_atual': meu_setor,
+        'proxima_daily': proxima_daily
     }
     return render(request, 'dashboard.html', context)
 
@@ -53,5 +62,27 @@ def cadastro_tarefas(request):
         )
         messages.success(request, 'Tarefa criada com sucesso!')
         return redirect('dashboard')
+        
     equipe_do_setor = Membro.objects.filter(setor=request.user.setor)
     return render(request, 'cadastro_tarefa.html', {'equipe': equipe_do_setor})
+
+@login_required(login_url='login')
+def mudar_status_tarefa(request, task_id):
+    tarefa = get_object_or_404(Task, id=task_id)
+    
+    if tarefa.setor != request.user.setor:
+        messages.error(request, "Você não pode alterar tarefas de outro setor!")
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        novo_status = request.POST.get('status')
+        
+        if request.user.cargo == 'estagiario' and novo_status == 'concluido':
+            messages.error(request, "Estagiários não podem concluir tarefas sozinhos. Peça aprovação a um Sênior ou Chefe.")
+            return redirect('dashboard')
+            
+        tarefa.status = novo_status
+        tarefa.save()
+        
+        messages.success(request, "Status da tarefa atualizado!")
+        return redirect('dashboard')

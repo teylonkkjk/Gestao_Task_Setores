@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workspace - 4D</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #f8fafc; min-height: 100vh; overflow-x: hidden; perspective: 1200px; }
+        
+        .orb { position: absolute; border-radius: 50%; filter: blur(150px); z-index: -1; opacity: 0.4; animation: drift 25s infinite alternate linear; }
+        .orb-1 { width: 600px; height: 600px; background: #3b0764; top: -100px; left: -200px; }
+        .orb-2 { width: 500px; height: 500px; background: #0c4a6e; bottom: -100px; right: -100px; animation-duration: 30s; }
+        @keyframes drift { 100% { transform: translate(20vw, 10vh); } }
+
+        .glass-header { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+        /* Card 4D */
+        .card-4d {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.8));
+            backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05);
+            transform-style: preserve-3d; transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .card-4d:hover {
+            transform: translateZ(40px) translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 40px rgba(6, 182, 212, 0.15);
+            border-color: rgba(6, 182, 212, 0.3);
+        }
+
+        /* Elementos que flutuam dentro do card */
+        .float-z { transition: transform 0.5s; }
+        .card-4d:hover .float-z { transform: translateZ(30px); }
+        .card-4d:hover .float-z-high { transform: translateZ(60px); }
+
+        .daily-alert { background: linear-gradient(90deg, rgba(8,145,178,0.2), rgba(67,56,202,0.2)); border: 1px solid rgba(6,182,212,0.4); box-shadow: 0 0 30px rgba(6,182,212,0.1); animation: pulse-neon 3s infinite alternate; }
+        @keyframes pulse-neon { 100% { box-shadow: 0 0 50px rgba(6,182,212,0.3); border-color: rgba(6,182,212,0.8); } }
+
+        select.dark-select { background-color: #0f172a; color: #fff; border: 1px solid #334155; }
+        select.dark-select:focus { border-color: #06b6d4; outline: none; }
+    </style>
+</head>
+<body class="relative">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="glass-header sticky top-0 z-50 py-6 px-8 shadow-2xl">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-white tracking-widest uppercase text-shadow-sm">Workspace <span class="text-cyan-400">| {{ setor_atual.nome }}</span></h1>
+                <p class="text-gray-400 mt-1 font-medium text-sm">Operador: <span class="text-white">{{ request.user.username }}</span> [{{ request.user.get_cargo_display }}]</p>
+            </div>
+            
+            {% if request.user.cargo == 'senior' or request.user.cargo == 'chefe' %}
+                <a href="{% url 'criar_tarefa' %}" class="mt-4 md:mt-0 px-8 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold uppercase tracking-widest rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all transform hover:scale-105">
+                    + Inserir Tarefa
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative z-10">
+        
+        {% if messages %}
+            <div class="mb-8">
+                {% for message in messages %}
+                    <div class="p-4 bg-green-900/40 text-green-400 border border-green-500/50 rounded-xl shadow-[0_0_15px_rgba(34,197,94,0.2)] font-semibold">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if proxima_daily %}
+            <div class="daily-alert rounded-2xl p-8 mb-12 flex flex-col md:flex-row justify-between items-center gap-6 backdrop-blur-md">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                        <span class="w-3 h-3 rounded-full bg-red-500 animate-ping"></span> ALERTA DE DAILY MEETING
+                    </h2>
+                    <p class="text-cyan-300 font-mono text-lg mt-2">{{ proxima_daily.data_agendada|date:"d/m/Y" }} // {{ proxima_daily.horario_da_daily|time:"H:i" }}</p>
+                    <p class="text-gray-300 mt-1">Pauta: {{ proxima_daily.resumo_pauta }}</p>
+                </div>
+                <a href="{{ proxima_daily.link_reuniao }}" target="_blank" class="px-8 py-4 bg-white text-black hover:bg-gray-200 font-bold uppercase tracking-widest rounded-xl transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+                    Conectar
+                </a>
+            </div>
+        {% endif %}
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for task in tarefas %}
+                <div class="card-4d rounded-2xl p-7 relative">
+                    <div class="absolute top-0 left-0 w-full h-1 
+                        {% if task.prioridade == 'extrema' %}bg-red-500 shadow-[0_0_10px_#ef4444]
+                        {% elif task.prioridade == 'mediana' %}bg-yellow-500 shadow-[0_0_10px_#eab308]
+                        {% else %}bg-green-500 shadow-[0_0_10px_#22c55e]{% endif %}">
+                    </div>
+                    
+                    <div class="flex justify-between items-start mb-6 float-z">
+                        <span class="px-3 py-1 text-xs font-bold uppercase tracking-wider rounded border border-gray-600 text-gray-300 bg-gray-800/50">
+                            {{ task.get_prioridade_display }}
+                        </span>
+                        <span class="text-xs font-bold uppercase tracking-widest text-cyan-400 bg-cyan-900/30 border border-cyan-500/30 px-3 py-1 rounded">
+                            {{ task.get_status_display }}
+                        </span>
+                    </div>
+                    
+                    <h3 class="text-2xl font-bold text-white mb-4 float-z-high leading-tight drop-shadow-md">{{ task.titulo }}</h3>
+                    
+                    <div class="space-y-3 text-sm font-medium text-gray-400 float-z">
+                        <p class="flex items-center gap-2">
+                            <span class="text-gray-500">Prazo:</span> <span class="text-gray-200">{{ task.data_entrega|date:"d/m/Y" }}</span>
+                        </p>
+                        <p class="flex items-center gap-2">
+                            <span class="text-gray-500">Alvo:</span> <span class="text-cyan-300">{{ task.membro.username }}</span>
+                        </p>
+                    </div>
+                    
+                    <div class="mt-8 pt-6 border-t border-gray-700/50 float-z">
+                        <form action="{% url 'mudar_status' task.id %}" method="POST" class="flex gap-3">
+                            {% csrf_token %}
+                            <select name="status" class="dark-select flex-1 text-sm rounded-lg p-3 font-medium uppercase tracking-wider">
+                                <option value="a fazer" {% if task.status == 'a fazer' %}selected{% endif %}>A Fazer</option>
+                                <option value="em processo" {% if task.status == 'em processo' %}selected{% endif %}>Em Processo</option>
+                                <option value="concluido" {% if task.status == 'concluido' %}selected{% endif %}>Concluído</option>
+                            </select>
+                            <button type="submit" class="bg-gray-800 hover:bg-cyan-500 hover:text-black border border-gray-600 hover:border-cyan-400 text-white p-3 rounded-lg transition-all shadow-md">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-span-full py-20 text-center bg-gray-900/40 rounded-3xl border border-dashed border-gray-700">
+                    <p class="text-gray-500 text-xl font-medium tracking-widest uppercase">Nenhum dado localizado na matriz.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
