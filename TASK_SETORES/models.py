@@ -46,7 +46,7 @@ class Task(models.Model):
     responsavel = models.ForeignKey(Membro, on_delete=models.CASCADE, related_name='tasks_criadas')
     membro = models.ForeignKey(Membro,on_delete=models.CASCADE, related_name='tasks_atribuidas')
     def __str__(self):
-        return f'{self.titulo} | De: {self.responsavel.usuario.username} ➔ Para: {self.membro.usuario.username}'
+        return f'{self.titulo} - {self.responsavel.usuario.username} - {self.membro.usuario.username}'
     
 class Daily_Meeting(models.Model):
     data_agendada = models.DateField('Data Agendada', blank=False, null=False)
@@ -58,7 +58,7 @@ class Daily_Meeting(models.Model):
     class Meta:
         ordering = ['-horario_da_daily']
     def __str__(self):
-        return f"Daily {self.setor.nome} - {self.data_hora.strftime('%d/%m/%Y %H:%M')}"
+        return f"Daily {self.setor.nome}  -  {self.horario_da_daily.strftime('%d/%m/%Y %H:%M')}"
     
 class Daily_Note(models.Model):
     feito_ontem = models.TextField('Feito Ontem', blank=True, null=True )
@@ -67,7 +67,7 @@ class Daily_Note(models.Model):
     daily = models.ForeignKey(Daily_Meeting, on_delete=models.CASCADE, related_name='notas')
     autor = models.ForeignKey(Membro, on_delete=models.CASCADE, related_name='minhas_notas')
     def __str__(self):
-        return f"Nota de {self.autor.user.username} na Daily {self.daily.id}"
+        return f"Nota de {self.autor.usuario.username} na Daily {self.daily.id}"
     
     
     

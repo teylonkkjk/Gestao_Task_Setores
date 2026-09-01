@@ -58,7 +58,9 @@ class TaskAdmin(admin.ModelAdmin):
 @admin.register(Daily_Meeting)
 class DailyMeetingAdmin(admin.ModelAdmin):
     list_display = ('id', 'data_agendada', 'setor') 
+    #list_editable = ('membros')
     list_filter = ('setor', 'data_agendada')
+    #list_filter = ('chefe','senior')
     def has_change_permission(self, request, obj=None):
         if request.user.is_superuser:
             return True
