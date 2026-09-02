@@ -1,0 +1,28 @@
+# Ambientes Virtuais (Onde ficam os pacotes instalados)
+venv/
+env/
+.venv/
+
+# Variáveis de Ambiente e Segredos (Onde ficam suas senhas)
+.env
+.env.local
+
+# Banco de Dados Local (Caso tenha testado com SQLite antes do Postgres)
+db.sqlite3
+db.sqlite3-journal
+
+# Arquivos compilados do Python (Lixo de cache gerado automaticamente)
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Arquivos de Mídia (Uploads de imagens/arquivos feitos no painel)
+media/
+
+# Node/Tailwind (Se você usou npm para instalar o Tailwind)
+node_modules/
+
+# Arquivos de Sistema Operacional (Gerados pelo Windows/Mac)
+.DS_Store
+Thumbs.db
