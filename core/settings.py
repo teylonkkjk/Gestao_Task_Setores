@@ -76,11 +76,11 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'TASKSETORES',
+        'NAME': '',
         'USER':'postgres',
-        'PASSWORD':'Tilon120',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'PASSWORD':'',
+        'HOST': '',
+        'PORT': '',
         
     }
 }
