@@ -22,13 +22,11 @@ def tela_login(request):
 def dashboard(request):
     meu_setor = request.user.setor
     tarefa_do_setor = Task.objects.filter(setor=meu_setor)
-    
     hoje = timezone.now().date()
     proxima_daily = Daily_Meeting.objects.filter(
         setor=meu_setor,
         data_agendada__gte=hoje
     ).order_by('data_agendada', 'horario_da_daily').first()
-
     context = {
         'tarefas': tarefa_do_setor,
         'setor_atual': meu_setor,
@@ -47,7 +45,6 @@ def cadastro_tarefas(request):
         descricao = request.POST.get('descricao')
         prioridade = request.POST.get('prioridade')
         data_entrega_digitada = request.POST.get('data_entrega') 
-        
         id_do_membro = request.POST.get('membro_atribuido')
         membro_recebedor = Membro.objects.get(id=id_do_membro)
         

@@ -51,7 +51,6 @@ class Daily_Meeting(models.Model):
     link_reuniao = models.URLField('Link da Chamada', max_length=1000, blank=False, null=False)
     resumo_pauta = models.TextField('Pauta / Resumo', blank=True, null=True)
     setor = models.ForeignKey(Setor, on_delete=models.CASCADE, related_name='dailies')
-    
     organizador_da_daily = models.ForeignKey(Membro, on_delete=models.CASCADE, related_name='dailies_agendadas')
     
     class Meta:
