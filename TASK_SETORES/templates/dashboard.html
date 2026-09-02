@@ -72,19 +72,36 @@
         {% endif %}
 
         {% if proxima_daily %}
-            <div class="daily-alert rounded-2xl p-8 mb-12 flex flex-col md:flex-row justify-between items-center gap-6 backdrop-blur-md">
-                <div>
-                    <h2 class="text-2xl font-bold text-white flex items-center gap-3">
-                        <span class="w-3 h-3 rounded-full bg-red-500 animate-ping"></span> ALERTA DE DAILY MEETING
-                    </h2>
-                    <p class="text-cyan-300 font-mono text-lg mt-2">{{ proxima_daily.data_agendada|date:"d/m/Y" }} // {{ proxima_daily.horario_da_daily|time:"H:i" }}</p>
-                    <p class="text-gray-300 mt-1">Pauta: {{ proxima_daily.resumo_pauta }}</p>
-                </div>
-                <a href="{{ proxima_daily.link_reuniao }}" target="_blank" class="px-8 py-4 bg-white text-black hover:bg-gray-200 font-bold uppercase tracking-widest rounded-xl transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]">
-                    Conectar
-                </a>
-            </div>
-        {% endif %}
+    <div class="daily-alert rounded-2xl p-8 mb-12 flex flex-col md:flex-row justify-between items-center gap-6 backdrop-blur-md">
+        
+        <!-- Informações da Daily -->
+        <div>
+            <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                <span class="w-3 h-3 rounded-full bg-red-500 animate-ping"></span> ALERTA DE DAILY MEETING
+            </h2>
+            <p class="text-cyan-300 font-mono text-lg mt-2">{{ proxima_daily.data_agendada|date:"d/m/Y" }} // {{ proxima_daily.horario_da_daily|time:"H:i" }}</p>
+            <p class="text-gray-300 mt-1">Pauta: {{ proxima_daily.resumo_pauta }}</p>
+        </div>
+
+        <!-- Botões de Ação -->
+        <div class="flex items-center gap-4">
+            
+            <!-- Botão Conectar -->
+            <a href="{{ proxima_daily.link_reuniao }}" target="_blank" class="px-8 py-4 bg-white text-black hover:bg-gray-200 font-bold uppercase tracking-widest rounded-xl transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+                Conectar
+            </a>
+
+            <!-- Formulário de Excluir Daily -->
+            <form action="{% url 'excluir_daily' proxima_daily.id %}" method="POST" class="flex items-center" onsubmit="return confirm('ALERTA: Deseja realmente cancelar e excluir esta Daily Meeting?');">
+                {% csrf_token %}
+                <button type="submit" title="Excluir Daily" class="flex items-center justify-center h-[56px] w-[56px] bg-red-900/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/50 hover:border-red-400 rounded-xl transition-all shadow-md hover:shadow-[0_0_20px_rgba(239,68,68,0.6)] group">
+                    <svg class="w-6 h-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+            </form>
+            
+        </div>
+    </div>
+{% endif %}
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for task in tarefas %}
@@ -115,19 +132,29 @@
                         </p>
                     </div>
                     
-                    <div class="mt-8 pt-6 border-t border-gray-700/50 float-z">
-                        <form action="{% url 'mudar_status' task.id %}" method="POST" class="flex gap-3">
-                            {% csrf_token %}
-                            <select name="status" class="dark-select flex-1 text-sm rounded-lg p-3 font-medium uppercase tracking-wider">
-                                <option value="a fazer" {% if task.status == 'a fazer' %}selected{% endif %}>A Fazer</option>
-                                <option value="em processo" {% if task.status == 'em processo' %}selected{% endif %}>Em Processo</option>
-                                <option value="concluido" {% if task.status == 'concluido' %}selected{% endif %}>Concluído</option>
-                            </select>
-                            <button type="submit" class="bg-gray-800 hover:bg-cyan-500 hover:text-black border border-gray-600 hover:border-cyan-400 text-white p-3 rounded-lg transition-all shadow-md">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            </button>
-                        </form>
-                    </div>
+                    <d<div class="mt-8 pt-6 border-t border-gray-700/50 float-z flex gap-3">
+
+   <div class="mt-8 pt-6 border-t border-gray-700/50 float-z flex items-center gap-3">
+    
+    <form action="{% url 'mudar_status' task.id %}" method="POST" class="flex flex-1 items-center gap-3">
+        {% csrf_token %}
+        <select name="status" class="dark-select flex-1 text-sm rounded-lg px-3 py-2 font-medium uppercase tracking-wider outline-none h-11">
+            <option value="a fazer" {% if task.status == 'a fazer' %}selected{% endif %}>A Fazer</option>
+            <option value="em processo" {% if task.status == 'em processo' %}selected{% endif %}>Em Processo</option>
+            <option value="concluido" {% if task.status == 'concluido' %}selected{% endif %}>Concluído</option>
+        </select>
+        <button type="submit" title="Atualizar Status" class="flex items-center justify-center h-11 w-11 bg-gray-800 hover:bg-cyan-500 hover:text-black border border-gray-600 hover:border-cyan-400 text-white rounded-lg transition-all shadow-md group">
+            <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        </button>
+    </form>
+    <form action="{% url 'excluir_tarefa' task.id %}" method="POST" class="flex items-center" onsubmit="return confirm('ALERTA DE SISTEMA: Deseja realmente excluir esta tarefa da matriz? Essa ação não pode ser desfeita.');">
+        {% csrf_token %}
+        <button type="submit" title="Excluir Tarefa" class="flex items-center justify-center h-11 w-11 bg-gray-800 hover:bg-red-500 hover:text-white border border-gray-600 hover:border-red-400 text-gray-400 rounded-lg transition-all shadow-md hover:shadow-[0_0_15px_rgba(239,68,68,0.5)] group">
+            <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+        </button>
+    </form>
+    
+</div>
                 </div>
             {% empty %}
                 <div class="col-span-full py-20 text-center bg-gray-900/40 rounded-3xl border border-dashed border-gray-700">

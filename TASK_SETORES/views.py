@@ -83,3 +83,15 @@ def mudar_status_tarefa(request, task_id):
         
         messages.success(request, "Status da tarefa atualizado!")
         return redirect('dashboard')
+    
+    
+def excluir_tarefa(request, id):
+    apagar = get_object_or_404(Task, id=id)
+    apagar.delete()
+    return redirect('dashboard')
+    
+    
+def excluir_daily(request,id):
+    apagar = get_object_or_404(Daily_Meeting, id=id)
+    apagar.delete()
+    return redirect('dashboard')
